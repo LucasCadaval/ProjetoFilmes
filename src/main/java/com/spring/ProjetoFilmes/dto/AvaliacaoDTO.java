@@ -1,8 +1,10 @@
 package com.spring.ProjetoFilmes.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import javax.validation.constraints.*;
 
+@Builder
 @Data
 public class AvaliacaoDTO {
     private Long id;
