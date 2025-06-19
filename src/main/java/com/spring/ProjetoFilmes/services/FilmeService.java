@@ -1,51 +1,80 @@
 package com.spring.ProjetoFilmes.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.spring.ProjetoFilmes.client.TmdbClient;
 import com.spring.ProjetoFilmes.dto.FilmeDTO;
-import com.spring.ProjetoFilmes.models.Filme;
-import com.spring.ProjetoFilmes.repository.FilmeRepository;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FilmeService {
 
-    private final FilmeRepository filmeRepository;
+    private final TmdbClient tmdbClient;
     private final AvaliacaoService avaliacaoService;
     private final FavoritoService favoritoService;
 
-    public FilmeDTO criarFilme(FilmeDTO filmeDTO) {
-        Filme filme = new Filme();
-        filme.setTitulo(filmeDTO.getTitulo());
-        filme.setDiretor(filmeDTO.getDiretor());
-        filme.setGenero(filmeDTO.getGenero());
-        filme.setSinopse(filmeDTO.getSinopse());
-        filme.setAnoLancamento(filmeDTO.getAnoLancamento());
-
-        Filme filmeSalvo = filmeRepository.save(filme);
-        return toDTO(filmeSalvo);
-    }
-
     public FilmeDTO buscarPorId(Long id, Long usuarioId) {
-        Filme filme = filmeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Filme não encontrado"));
+        JsonNode json = tmdbClient.buscarFilmePorId(id);
 
-        FilmeDTO dto = toDTO(filme);
-        dto.setMediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(id));
-        dto.setIsFavorito(favoritoService.isFavorito(usuarioId, id));
-
-        return dto;
+        return FilmeDTO.builder()
+                .id(json.get("id").asLong())
+                .title(json.get("title").asText())
+                .overview(json.get("overview").asText())
+                .releaseDate(json.get("release_date").asText())
+                .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                .genres(json.has("genres") ? converterGeneros(json.get("genres")) : new ArrayList<>())
+                .isFavorito(favoritoService.isFavorito(usuarioId, id))
+                .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(id))
+                .build();
     }
 
-    private FilmeDTO toDTO(Filme filme) {
-        return FilmeDTO.builder()
-                .id(filme.getId())
-                .titulo(filme.getTitulo())
-                .diretor(filme.getDiretor())
-                .genero(filme.getGenero())
-                .sinopse(filme.getSinopse())
-                .anoLancamento(filme.getAnoLancamento())
-                .build();
+    public List<FilmeDTO> listarPopulares(Long usuarioId) {
+        List<JsonNode> filmesJson = tmdbClient.buscarTodosFilmesPopulares();
+        List<FilmeDTO> filmes = new ArrayList<>();
+
+        for (JsonNode json : filmesJson) {
+            Long filmeId = json.get("id").asLong();
+
+            FilmeDTO dto = FilmeDTO.builder()
+                    .id(filmeId)
+                    .title(json.get("title").asText())
+                    .overview(json.get("overview").asText())
+                    .releaseDate(json.get("release_date").asText())
+                    .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
+                    .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
+                    .build();
+
+            filmes.add(dto);
+        }
+
+        return filmes;
+    }
+
+    private List<FilmeDTO.Genre> converterGeneros(JsonNode genresJson) {
+        List<FilmeDTO.Genre> generos = new ArrayList<>();
+        for (JsonNode genero : genresJson) {
+            generos.add(FilmeDTO.Genre.builder()
+                    .id(genero.get("id").asLong())
+                    .name(genero.get("name").asText())
+                    .build());
+        }
+        return generos;
+    }
+
+    private List<FilmeDTO.Genre> converterGenerosPorId(JsonNode genreIds) {
+        List<FilmeDTO.Genre> generos = new ArrayList<>();
+        for (JsonNode id : genreIds) {
+            generos.add(FilmeDTO.Genre.builder()
+                    .id(id.asLong())
+                    .name("Gênero " + id.asLong()) // ou mapeie corretamente com uma tabela real
+                    .build());
+        }
+        return generos;
     }
 }

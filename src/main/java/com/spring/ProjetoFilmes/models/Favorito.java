@@ -13,12 +13,12 @@ import lombok.Setter;
 @Entity
 @Table(name = "Favorito")
 public class Favorito {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Filme filme;
+    private Long filmeId; 
 
     private Long usuarioId;
 }
