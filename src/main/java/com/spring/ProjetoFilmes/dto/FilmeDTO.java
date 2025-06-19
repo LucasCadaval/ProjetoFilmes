@@ -1,31 +1,37 @@
 package com.spring.ProjetoFilmes.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
-import javax.validation.constraints.*;
 
-@Builder
+import java.util.List;
+
 @Data
+@Builder
 public class FilmeDTO {
+
     private Long id;
 
-    @NotBlank(message = "Título é obrigatório")
-    private String titulo;
+    private String title;
 
-    @NotBlank(message = "Diretor é obrigatório")
-    private String diretor;
+    private String overview;
 
-    @NotBlank(message = "Gênero é obrigatório")
-    private String genero;
+    @JsonProperty("release_date")
+    private String releaseDate;
 
-    private String sinopse;
+    @JsonProperty("vote_average")
+    private Double voteAverage;
 
-    @Min(1900)
-    private int anoLancamento;
+    private List<Genre> genres;
 
-
-    private Double mediaAvaliacoes;
+    // Campos personalizados do seu sistema (não existem na TMDB)
     private Boolean isFavorito;
+    private Double mediaAvaliacoes;
+
+    @Data
+    @Builder
+    public static class Genre {
+        private Long id;
+        private String name;
+    }
 }
