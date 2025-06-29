@@ -3,6 +3,7 @@ package com.spring.ProjetoFilmes.services;
 import com.spring.ProjetoFilmes.dto.AvaliacaoDTO;
 import com.spring.ProjetoFilmes.models.Avaliacao;
 import com.spring.ProjetoFilmes.repository.AvaliacaoRepository;
+import com.spring.ProjetoFilmes.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -16,16 +17,19 @@ public class AvaliacaoService {
 
     private final AvaliacaoRepository avaliacaoRepository;
 
-    public Avaliacao cadastrar(AvaliacaoDTO dto) {
-        Avaliacao avaliacao = Avaliacao.builder()
-                .usuarioId(dto.getUsuarioId())
-                .filmeId(dto.getFilmeId())
-                .nota(dto.getNota())
-                .comentario(dto.getComentario())
-                .build();
+    private final UsuarioRepository usuarioRepository;
 
-        return avaliacaoRepository.save(avaliacao);
-    }
+
+//    public Avaliacao cadastrar(AvaliacaoDTO dto) {
+//        Avaliacao avaliacao = Avaliacao.builder()
+//                .usuarioId(dto.getUsuarioId())
+//                .filmeId(dto.getFilmeId())
+//                .nota(dto.getNota())
+//                .comentario(dto.getComentario())
+//                .build();
+//
+//        return avaliacaoRepository.save(avaliacao);
+//    }
 
 
     public List<Avaliacao> listarPorFilme(Long filmeId) {
@@ -52,5 +56,21 @@ public class AvaliacaoService {
     public void remover(Long id) {
         avaliacaoRepository.deleteById(id);
     }
+
+    public Avaliacao cadastrar(AvaliacaoDTO dto) {
+        if (!usuarioRepository.existsById(dto.getUsuarioId())) {
+            throw new RuntimeException("Usuário não existe com ID: " + dto.getUsuarioId());
+        }
+
+        Avaliacao avaliacao = Avaliacao.builder()
+                .usuarioId(dto.getUsuarioId())
+                .filmeId(dto.getFilmeId())
+                .nota(dto.getNota())
+                .comentario(dto.getComentario())
+                .build();
+
+        return avaliacaoRepository.save(avaliacao);
+    }
+
 
 }
