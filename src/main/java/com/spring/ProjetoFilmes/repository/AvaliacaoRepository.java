@@ -12,4 +12,7 @@ public interface AvaliacaoRepository extends JpaRepository<Avaliacao, Long> {
 
     @Query("SELECT AVG(a.nota) FROM Avaliacao a WHERE a.filmeId = :filmeId")
     Double calcularMediaPorFilme(Long filmeId);
+
+    List<Avaliacao> findByUsuarioId(Long usuarioId);
+
 }
