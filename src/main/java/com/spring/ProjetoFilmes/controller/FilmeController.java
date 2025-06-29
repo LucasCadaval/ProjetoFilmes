@@ -29,4 +29,13 @@ public class FilmeController {
     ) {
         return ResponseEntity.ok(filmeService.listarPopulares(usuarioId));
     }
+
+    @GetMapping("/genero/{generoId}")
+    public ResponseEntity<List<FilmeDTO>> listarPorGenero(
+            @PathVariable Long generoId,
+            @RequestParam Long usuarioId
+    ) {
+        return ResponseEntity.ok(filmeService.listarPorGenero(generoId, usuarioId));
+    }
+
 }

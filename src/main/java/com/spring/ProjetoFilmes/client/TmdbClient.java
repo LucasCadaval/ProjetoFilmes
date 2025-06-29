@@ -7,6 +7,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class TmdbClient {
@@ -64,9 +66,19 @@ public class TmdbClient {
 
             pagina++;
 
-        } while (pagina <= totalPaginas && pagina <= 10); // Limite de 10 páginas para evitar sobrecarga
+        } while (pagina <= totalPaginas && pagina <= 10);
 
         return todosFilmes;
     }
+
+    public List<JsonNode> buscarFilmesPorGenero(Long generoId) {
+        String url = TMDB_BASE_URL + "/discover/movie?with_genres=" + generoId + "&api_key=" + TMDB_API_KEY + "&language=pt-BR";
+        JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+        return StreamSupport
+                .stream(response.get("results").spliterator(), false)
+                .collect(Collectors.toList());
+
+    }
+
 
 }

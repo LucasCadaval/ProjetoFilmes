@@ -77,4 +77,28 @@ public class FilmeService {
         }
         return generos;
     }
+
+    public List<FilmeDTO> listarPorGenero(Long generoId, Long usuarioId) {
+        List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorGenero(generoId);
+        List<FilmeDTO> filmes = new ArrayList<>();
+
+        for (JsonNode json : filmesJson) {
+            Long filmeId = json.get("id").asLong();
+            FilmeDTO dto = FilmeDTO.builder()
+                    .id(filmeId)
+                    .title(json.get("title").asText())
+                    .overview(json.get("overview").asText())
+                    .releaseDate(json.get("release_date").asText())
+                    .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
+                    .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
+                    .build();
+
+            filmes.add(dto);
+        }
+
+        return filmes;
+    }
+
 }
