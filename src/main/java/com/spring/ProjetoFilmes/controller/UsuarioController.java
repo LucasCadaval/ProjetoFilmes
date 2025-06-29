@@ -16,11 +16,8 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
 
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody @Valid Usuario usuario) {
-        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-            return ResponseEntity.badRequest().body("E-mail já cadastrado");
-        }
-
-        return ResponseEntity.ok(usuarioRepository.save(usuario));
+    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+        Usuario novo = usuarioRepository.save(usuario);
+        return ResponseEntity.ok(novo);
     }
 }
