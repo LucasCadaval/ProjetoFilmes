@@ -9,6 +9,4 @@ public class FavoritoDTO {
     private Long id;
     private Long filmeId;
     private Long usuarioId;
-
-    private FilmeDTO filme;
 }
