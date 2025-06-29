@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,6 +81,21 @@ public class TmdbClient {
                 .collect(Collectors.toList());
 
     }
+
+    public List<JsonNode> buscarFilmesPorNome(String nome) {
+        String url = TMDB_BASE_URL + "/search/movie?query=" + UriUtils.encode(nome, StandardCharsets.UTF_8)
+                + "&api_key=" + TMDB_API_KEY + "&language=pt-BR";
+        JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+
+        List<JsonNode> filmes = new ArrayList<>();
+        if (response.has("results") && response.get("results").isArray()) {
+            for (JsonNode node : response.get("results")) {
+                filmes.add(node);
+            }
+        }
+        return filmes;
+    }
+
 
 
 }
