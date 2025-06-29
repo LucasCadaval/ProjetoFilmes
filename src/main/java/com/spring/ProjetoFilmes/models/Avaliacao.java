@@ -1,27 +1,30 @@
 package com.spring.ProjetoFilmes.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
-@Getter
-@Setter
+@Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "Avaliacao")
+@Builder
 public class Avaliacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer nota;
-    private String comentario;
-
-    private Long filmeId;
     private Long usuarioId;
-}
 
+    //id de filme é da tmdb api
+    private Long filmeId;
+
+    @NotNull
+    @DecimalMin(value = "0.0", message = "Nota mínima é 0")
+    @DecimalMax(value = "5.0", message = "Nota máxima é 5")
+    private Double nota;
+
+
+    private String comentario;
+}

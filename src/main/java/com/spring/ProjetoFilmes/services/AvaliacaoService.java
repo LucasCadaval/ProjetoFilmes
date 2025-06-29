@@ -5,36 +5,43 @@ import com.spring.ProjetoFilmes.models.Avaliacao;
 import com.spring.ProjetoFilmes.repository.AvaliacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
+@Validated
 @Service
 @RequiredArgsConstructor
 public class AvaliacaoService {
 
     private final AvaliacaoRepository avaliacaoRepository;
 
-    public AvaliacaoDTO criarAvaliacao(AvaliacaoDTO avaliacaoDTO, Long usuarioId) {
-        Avaliacao avaliacao = new Avaliacao();
-        avaliacao.setNota(avaliacaoDTO.getNota());
-        avaliacao.setComentario(avaliacaoDTO.getComentario());
-        avaliacao.setFilmeId(avaliacaoDTO.getFilmeId());
-        avaliacao.setUsuarioId(usuarioId);
+    public Avaliacao cadastrar(AvaliacaoDTO dto) {
+        Avaliacao avaliacao = Avaliacao.builder()
+                .usuarioId(dto.getUsuarioId())
+                .filmeId(dto.getFilmeId())
+                .nota(dto.getNota())
+                .comentario(dto.getComentario())
+                .build();
 
-        Avaliacao avaliacaoSalva = avaliacaoRepository.save(avaliacao);
-        return toDTO(avaliacaoSalva);
+        return avaliacaoRepository.save(avaliacao);
     }
 
+
+    public List<Avaliacao> listarPorFilme(Long filmeId) {
+        return avaliacaoRepository.findByFilmeId(filmeId);
+    }
 
     public Double calcularMediaAvaliacoes(Long filmeId) {
         return avaliacaoRepository.calcularMediaPorFilme(filmeId);
     }
 
-    private AvaliacaoDTO toDTO(Avaliacao avaliacao) {
+    public AvaliacaoDTO toDTO(Avaliacao avaliacao) {
         return AvaliacaoDTO.builder()
                 .id(avaliacao.getId())
                 .nota(avaliacao.getNota())
                 .comentario(avaliacao.getComentario())
                 .filmeId(avaliacao.getFilmeId())
-                .usuarioId(avaliacao.getUsuarioId())
                 .build();
     }
 }
