@@ -44,4 +44,13 @@ public class AvaliacaoService {
                 .filmeId(avaliacao.getFilmeId())
                 .build();
     }
+
+    public List<Avaliacao> listarPorUsuario(Long usuarioId) {
+        return avaliacaoRepository.findByUsuarioId(usuarioId);
+    }
+
+    public void remover(Long id) {
+        avaliacaoRepository.deleteById(id);
+    }
+
 }

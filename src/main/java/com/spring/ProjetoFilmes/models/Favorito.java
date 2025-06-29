@@ -1,24 +1,20 @@
 package com.spring.ProjetoFilmes.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "Favorito")
+@Builder
 public class Favorito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long filmeId; 
-
     private Long usuarioId;
+
+    private Long filmeId;
 }
