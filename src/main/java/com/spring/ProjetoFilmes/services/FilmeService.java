@@ -26,6 +26,9 @@ public class FilmeService {
                 .overview(json.get("overview").asText())
                 .releaseDate(json.get("release_date").asText())
                 .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                .posterUrl(json.has("poster_path") && !json.get("poster_path").isNull()
+                        ? "https://image.tmdb.org/t/p/w500" + json.get("poster_path").asText()
+                        : null)
                 .genres(json.has("genres") ? converterGeneros(json.get("genres")) : new ArrayList<>())
                 .isFavorito(favoritoService.isFavorito(usuarioId, id))
                 .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(id))
@@ -45,6 +48,63 @@ public class FilmeService {
                     .overview(json.get("overview").asText())
                     .releaseDate(json.get("release_date").asText())
                     .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                    .posterUrl(json.has("poster_path") && !json.get("poster_path").isNull()
+                            ? "https://image.tmdb.org/t/p/w500" + json.get("poster_path").asText()
+                            : null)
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
+                    .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
+                    .build();
+
+            filmes.add(dto);
+        }
+
+        return filmes;
+    }
+
+    public List<FilmeDTO> listarPorGenero(Long generoId, Long usuarioId) {
+        List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorGenero(generoId);
+        List<FilmeDTO> filmes = new ArrayList<>();
+
+        for (JsonNode json : filmesJson) {
+            Long filmeId = json.get("id").asLong();
+
+            FilmeDTO dto = FilmeDTO.builder()
+                    .id(filmeId)
+                    .title(json.get("title").asText())
+                    .overview(json.get("overview").asText())
+                    .releaseDate(json.get("release_date").asText())
+                    .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                    .posterUrl(json.has("poster_path") && !json.get("poster_path").isNull()
+                            ? "https://image.tmdb.org/t/p/w500" + json.get("poster_path").asText()
+                            : null)
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
+                    .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
+                    .build();
+
+            filmes.add(dto);
+        }
+
+        return filmes;
+    }
+
+    public List<FilmeDTO> buscarPorNome(String nome, Long usuarioId) {
+        List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorNome(nome);
+        List<FilmeDTO> filmes = new ArrayList<>();
+
+        for (JsonNode json : filmesJson) {
+            Long filmeId = json.get("id").asLong();
+
+            FilmeDTO dto = FilmeDTO.builder()
+                    .id(filmeId)
+                    .title(json.get("title").asText())
+                    .overview(json.get("overview").asText())
+                    .releaseDate(json.get("release_date").asText())
+                    .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
+                    .posterUrl(json.has("poster_path") && !json.get("poster_path").isNull()
+                            ? "https://image.tmdb.org/t/p/w500" + json.get("poster_path").asText()
+                            : null)
                     .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
                     .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
                     .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
@@ -72,33 +132,9 @@ public class FilmeService {
         for (JsonNode id : genreIds) {
             generos.add(FilmeDTO.Genre.builder()
                     .id(id.asLong())
-                    .name("Gênero " + id.asLong()) // ou mapeie corretamente com uma tabela real
+                    .name("Gênero " + id.asLong())
                     .build());
         }
         return generos;
     }
-
-    public List<FilmeDTO> listarPorGenero(Long generoId, Long usuarioId) {
-        List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorGenero(generoId);
-        List<FilmeDTO> filmes = new ArrayList<>();
-
-        for (JsonNode json : filmesJson) {
-            Long filmeId = json.get("id").asLong();
-            FilmeDTO dto = FilmeDTO.builder()
-                    .id(filmeId)
-                    .title(json.get("title").asText())
-                    .overview(json.get("overview").asText())
-                    .releaseDate(json.get("release_date").asText())
-                    .voteAverage(json.has("vote_average") ? json.get("vote_average").asDouble() : null)
-                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
-                    .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
-                    .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
-                    .build();
-
-            filmes.add(dto);
-        }
-
-        return filmes;
-    }
-
 }

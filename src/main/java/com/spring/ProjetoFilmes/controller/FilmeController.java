@@ -38,4 +38,12 @@ public class FilmeController {
         return ResponseEntity.ok(filmeService.listarPorGenero(generoId, usuarioId));
     }
 
+    @GetMapping("/buscar")
+    public ResponseEntity<List<FilmeDTO>> buscarPorNome(
+            @RequestParam String nome,
+            @RequestParam Long usuarioId
+    ) {
+        return ResponseEntity.ok(filmeService.buscarPorNome(nome, usuarioId));
+    }
+
 }
