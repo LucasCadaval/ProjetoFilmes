@@ -15,6 +15,8 @@ public class Usuario {
     @Column(name = "usuario_id")
     private Long usuarioId;
 
+    private String nomeCompleto;
+
     private String email;
 
     private String senha;
