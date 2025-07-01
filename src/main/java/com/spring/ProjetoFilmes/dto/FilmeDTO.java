@@ -14,6 +14,8 @@ public class FilmeDTO {
 
     private String posterUrl;
 
+    private String posterPath;
+
     private String title;
 
     private String overview;
