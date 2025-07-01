@@ -7,8 +7,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -79,7 +78,6 @@ public class TmdbClient {
         return StreamSupport
                 .stream(response.get("results").spliterator(), false)
                 .collect(Collectors.toList());
-
     }
 
     public List<JsonNode> buscarFilmesPorNome(String nome) {
@@ -96,6 +94,16 @@ public class TmdbClient {
         return filmes;
     }
 
+    public Map<Long, String> buscarMapaDeGeneros() {
+        String url = TMDB_BASE_URL + "/genre/movie/list?api_key=" + TMDB_API_KEY + "&language=pt-BR";
+        JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
-
+        Map<Long, String> mapa = new HashMap<>();
+        if (response.has("genres") && response.get("genres").isArray()) {
+            for (JsonNode genero : response.get("genres")) {
+                mapa.put(genero.get("id").asLong(), genero.get("name").asText());
+            }
+        }
+        return mapa;
+    }
 }

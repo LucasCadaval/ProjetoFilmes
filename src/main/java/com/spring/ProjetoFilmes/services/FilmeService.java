@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class FilmeService {
 
     public List<FilmeDTO> listarPopulares(Long usuarioId) {
         List<JsonNode> filmesJson = tmdbClient.buscarTodosFilmesPopulares();
+        Map<Long, String> mapaDeGeneros = tmdbClient.buscarMapaDeGeneros();
         List<FilmeDTO> filmes = new ArrayList<>();
 
         for (JsonNode json : filmesJson) {
@@ -57,7 +59,7 @@ public class FilmeService {
                     .posterPath(json.has("poster_path") && !json.get("poster_path").isNull()
                             ? json.get("poster_path").asText()
                             : null)
-                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids"), mapaDeGeneros) : new ArrayList<>())
                     .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
                     .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
                     .build();
@@ -70,6 +72,7 @@ public class FilmeService {
 
     public List<FilmeDTO> listarPorGenero(Long generoId, Long usuarioId) {
         List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorGenero(generoId);
+        Map<Long, String> mapaDeGeneros = tmdbClient.buscarMapaDeGeneros();
         List<FilmeDTO> filmes = new ArrayList<>();
 
         for (JsonNode json : filmesJson) {
@@ -87,7 +90,7 @@ public class FilmeService {
                     .posterPath(json.has("poster_path") && !json.get("poster_path").isNull()
                             ? json.get("poster_path").asText()
                             : null)
-                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids"), mapaDeGeneros) : new ArrayList<>())
                     .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
                     .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
                     .build();
@@ -100,6 +103,7 @@ public class FilmeService {
 
     public List<FilmeDTO> buscarPorNome(String nome, Long usuarioId) {
         List<JsonNode> filmesJson = tmdbClient.buscarFilmesPorNome(nome);
+        Map<Long, String> mapaDeGeneros = tmdbClient.buscarMapaDeGeneros();
         List<FilmeDTO> filmes = new ArrayList<>();
 
         for (JsonNode json : filmesJson) {
@@ -117,7 +121,7 @@ public class FilmeService {
                     .posterPath(json.has("poster_path") && !json.get("poster_path").isNull()
                             ? json.get("poster_path").asText()
                             : null)
-                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids")) : new ArrayList<>())
+                    .genres(json.has("genre_ids") ? converterGenerosPorId(json.get("genre_ids"), mapaDeGeneros) : new ArrayList<>())
                     .isFavorito(favoritoService.isFavorito(usuarioId, filmeId))
                     .mediaAvaliacoes(avaliacaoService.calcularMediaAvaliacoes(filmeId))
                     .build();
@@ -139,12 +143,14 @@ public class FilmeService {
         return generos;
     }
 
-    private List<FilmeDTO.Genre> converterGenerosPorId(JsonNode genreIds) {
+    private List<FilmeDTO.Genre> converterGenerosPorId(JsonNode genreIds, Map<Long, String> mapaDeGeneros) {
         List<FilmeDTO.Genre> generos = new ArrayList<>();
         for (JsonNode id : genreIds) {
+            long generoId = id.asLong();
+            String nome = mapaDeGeneros.getOrDefault(generoId, "Gênero " + generoId);
             generos.add(FilmeDTO.Genre.builder()
-                    .id(id.asLong())
-                    .name("Gênero " + id.asLong())
+                    .id(generoId)
+                    .name(nome)
                     .build());
         }
         return generos;

@@ -28,7 +28,6 @@ public class FilmeDTO {
 
     private List<Genre> genres;
 
-    // Campos personalizados do seu sistema (não existem na TMDB)
     private Boolean isFavorito;
     private Double mediaAvaliacoes;
 
