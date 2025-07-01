@@ -16,7 +16,6 @@ public class AvaliacaoDTO {
     private Long id;
 
     private Long usuarioId;
-
     @NotNull
     private Long filmeId;
 
@@ -26,4 +25,6 @@ public class AvaliacaoDTO {
     private Double nota;
 
     private String comentario;
+
+    private String nomeUsuario;
 }
