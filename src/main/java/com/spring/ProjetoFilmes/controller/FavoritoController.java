@@ -1,5 +1,7 @@
 package com.spring.ProjetoFilmes.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.spring.ProjetoFilmes.client.TmdbClient;
 import com.spring.ProjetoFilmes.models.Avaliacao;
 import com.spring.ProjetoFilmes.models.Favorito;
 import com.spring.ProjetoFilmes.services.AvaliacaoService;
@@ -17,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FavoritoController {
 
+    private final TmdbClient tmdbClient;
     private final FavoritoService favoritoService;
     private final AvaliacaoService avaliacaoService;
 
@@ -32,9 +35,16 @@ public class FavoritoController {
     }
 
     @GetMapping("/favoritos/{usuarioId}")
-    public ResponseEntity<List<Favorito>> listarFavoritos(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(favoritoService.listarFavoritosPorUsuario(usuarioId));
+    public ResponseEntity<List<JsonNode>> listarFilmesFavoritos(@PathVariable Long usuarioId) {
+        List<Favorito> favoritos = favoritoService.listarFavoritosPorUsuario(usuarioId);
+
+        List<JsonNode> filmes = favoritos.stream()
+                .map(fav -> tmdbClient.buscarFilmePorId(fav.getFilmeId()))
+                .toList();
+
+        return ResponseEntity.ok(filmes);
     }
+
 
     @GetMapping("/{usuarioId}/dados")
     public ResponseEntity<Map<String, Object>> getDadosDoUsuario(@PathVariable Long usuarioId) {
