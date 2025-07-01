@@ -14,7 +14,7 @@ Este é o backend do ProjetoFilmes, uma API em Spring Boot que permite:
 - Hibernate
 - Lombok
 - TMDb API (via RestTemplate)
-- Banco de dados: H2, MySQL ou PostgreSQL
+- Banco de dados: PostgreSQL
 - Maven
 
 ## Estrutura do Projeto
